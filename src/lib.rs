@@ -1,5 +1,7 @@
 #![warn(clippy::pedantic)]
 
+pub mod server;
+
 /// Error returned by most functions.
 ///
 /// For performance reasons, boxing is avoided in any hot path.
