@@ -1,1 +1,1 @@
-# container-registry-gateway
+# Container Registry Gateway
