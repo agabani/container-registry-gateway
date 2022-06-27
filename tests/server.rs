@@ -3,12 +3,10 @@ use hyper::client::Client;
 use std::net::SocketAddr;
 
 #[tokio::test]
-async fn returns_404() {
+async fn root_returns_404() {
     let socket_addr = start_server().await;
 
-    let client = Client::new();
-
-    let response = client
+    let response = Client::new()
         .get(
             format!("http://127.0.0.1:{}", socket_addr.port())
                 .parse()
@@ -18,6 +16,38 @@ async fn returns_404() {
         .unwrap();
 
     assert_eq!(404, response.status())
+}
+
+#[tokio::test]
+async fn health_liveness_get_returns_200() {
+    let socket_addr = start_server().await;
+
+    let response = Client::new()
+        .get(
+            format!("http://127.0.0.1:{}/health/liveness", socket_addr.port())
+                .parse()
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(200, response.status())
+}
+
+#[tokio::test]
+async fn health_readiness_get_returns_200() {
+    let socket_addr = start_server().await;
+
+    let response = Client::new()
+        .get(
+            format!("http://127.0.0.1:{}/health/readiness", socket_addr.port())
+                .parse()
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(200, response.status())
 }
 
 async fn start_server() -> SocketAddr {
