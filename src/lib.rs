@@ -2,7 +2,7 @@
 
 pub mod server;
 
-pub mod signals;
+pub mod signal;
 
 /// Error returned by most functions.
 ///
