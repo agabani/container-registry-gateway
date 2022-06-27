@@ -2,6 +2,8 @@
 
 pub mod server;
 
+pub mod signals;
+
 /// Error returned by most functions.
 ///
 /// For performance reasons, boxing is avoided in any hot path.
