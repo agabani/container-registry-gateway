@@ -1,6 +1,6 @@
 #![warn(clippy::pedantic)]
 
-mod oci_proxy;
+mod oci;
 
 pub mod server;
 

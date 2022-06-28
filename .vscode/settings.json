@@ -1,7 +1,9 @@
 {
   "cSpell.words": [
     "Kubernetes",
+    "rustls",
     "SIGINT",
-    "SIGTERM"
+    "SIGTERM",
+    "webpki"
   ]
 }

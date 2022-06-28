@@ -51,7 +51,7 @@ async fn health_readiness_get_returns_ok() {
 }
 
 #[tokio::test]
-async fn v2_root_returns_not_implemented() {
+async fn v2_root_returns_unauthorized() {
     let socket_addr = start_server().await;
 
     let response = Client::new()
@@ -63,7 +63,7 @@ async fn v2_root_returns_not_implemented() {
         .await
         .unwrap();
 
-    assert_eq!(StatusCode::NOT_IMPLEMENTED, response.status())
+    assert_eq!(StatusCode::UNAUTHORIZED, response.status())
 }
 
 async fn start_server() -> SocketAddr {

@@ -1,6 +1,6 @@
 use axum::http::status::StatusCode;
 
-use crate::oci_proxy::OciProxy;
+use crate::oci::Proxy;
 
 /// GET /health/liveness
 ///
@@ -28,8 +28,14 @@ pub(crate) async fn health_readiness_get() -> StatusCode {
 ///
 /// This endpoint is used by the OCI distribution specification proxy.
 #[allow(clippy::unused_async)]
-pub(crate) async fn v2_any() -> StatusCode {
-    let _oci_proxy = OciProxy::new("https://registry-1.docker.io");
-
-    StatusCode::NOT_IMPLEMENTED
+pub(crate) async fn v2_any(
+    request: axum::http::Request<axum::body::Body>,
+) -> Result<hyper::Response<hyper::Body>, StatusCode> {
+    Proxy::new("https://registry-1.docker.io")
+        .send(request)
+        .await
+        .map_err(|error| {
+            tracing::error!(?error);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })
 }
