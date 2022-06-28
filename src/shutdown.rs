@@ -1,4 +1,5 @@
-pub async fn shutdown() {
+/// Receives the shutdown signal, waiting if necessary.
+pub async fn recv() {
     let control_c = async {
         tokio::signal::ctrl_c()
             .await

@@ -4,7 +4,7 @@ pub mod server;
 
 mod route;
 
-pub mod signal;
+pub mod shutdown;
 
 /// Error returned by most functions.
 ///

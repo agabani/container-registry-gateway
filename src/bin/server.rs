@@ -1,4 +1,4 @@
-use container_registry_gateway::{server, signal};
+use container_registry_gateway::{server, shutdown};
 use tokio::net::TcpListener;
 
 #[tokio::main]
@@ -9,7 +9,7 @@ async fn main() -> container_registry_gateway::Result<()> {
 
     tracing::info!("Listening on {}", tcp_listener.local_addr()?);
 
-    server::run(tcp_listener.into_std()?, signal::shutdown()).await?;
+    server::run(tcp_listener.into_std()?, shutdown::recv()).await?;
 
     Ok(())
 }

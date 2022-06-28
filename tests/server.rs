@@ -1,4 +1,4 @@
-use container_registry_gateway::{server, signal};
+use container_registry_gateway::{server, shutdown};
 use hyper::client::Client;
 use std::net::SocketAddr;
 
@@ -56,7 +56,7 @@ async fn start_server() -> SocketAddr {
     let socket_addr = tcp_listener.local_addr().unwrap();
 
     tokio::spawn(
-        async move { server::run(tcp_listener.into_std().unwrap(), signal::shutdown()).await },
+        async move { server::run(tcp_listener.into_std().unwrap(), shutdown::recv()).await },
     );
 
     socket_addr
