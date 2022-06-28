@@ -7,8 +7,6 @@ async fn main() -> container_registry_gateway::Result<()> {
 
     let tcp_listener = TcpListener::bind("127.0.0.1:8080").await?;
 
-    tracing::info!("Listening on {}", tcp_listener.local_addr()?);
-
     server::run(tcp_listener.into_std()?, shutdown::recv()).await?;
 
     Ok(())

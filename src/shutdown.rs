@@ -28,15 +28,17 @@ pub async fn recv() {
     #[cfg(not(unix))]
     let sigterm = std::future::pending::<()>();
 
-    tokio::select! {
+    let signal = tokio::select! {
         _ = control_c => {
-            tracing::info!("Received Ctrl+C, shutting down");
+            "Ctrl+C"
         }
         _ = sigint => {
-            tracing::info!("Received SIGINT, shutting down");
+            "SIGINT"
         }
         _ = sigterm => {
-            tracing::info!("Received SIGTERM, shutting down");
+            "SIGTERM"
         }
-    }
+    };
+
+    tracing::info!(signal, "Received signal");
 }
