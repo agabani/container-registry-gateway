@@ -1,5 +1,7 @@
 use axum::http::status::StatusCode;
 
+use crate::oci_proxy::OciProxy;
+
 /// GET /health/liveness
 ///
 /// Returns 200 if the server is healthy.
@@ -27,5 +29,7 @@ pub(crate) async fn health_readiness_get() -> StatusCode {
 /// This endpoint is used by the OCI distribution specification proxy.
 #[allow(clippy::unused_async)]
 pub(crate) async fn v2_any() -> StatusCode {
+    let _oci_proxy = OciProxy::new("https://registry-1.docker.io");
+
     StatusCode::NOT_IMPLEMENTED
 }
