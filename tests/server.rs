@@ -1,9 +1,9 @@
 use container_registry_gateway::{server, shutdown};
-use hyper::client::Client;
+use hyper::{client::Client, StatusCode};
 use std::net::SocketAddr;
 
 #[tokio::test]
-async fn root_returns_404() {
+async fn root_returns_not_found() {
     let socket_addr = start_server().await;
 
     let response = Client::new()
@@ -15,11 +15,11 @@ async fn root_returns_404() {
         .await
         .unwrap();
 
-    assert_eq!(404, response.status())
+    assert_eq!(StatusCode::NOT_FOUND, response.status())
 }
 
 #[tokio::test]
-async fn health_liveness_get_returns_200() {
+async fn health_liveness_get_returns_ok() {
     let socket_addr = start_server().await;
 
     let response = Client::new()
@@ -31,11 +31,11 @@ async fn health_liveness_get_returns_200() {
         .await
         .unwrap();
 
-    assert_eq!(200, response.status())
+    assert_eq!(StatusCode::OK, response.status())
 }
 
 #[tokio::test]
-async fn health_readiness_get_returns_200() {
+async fn health_readiness_get_returns_ok() {
     let socket_addr = start_server().await;
 
     let response = Client::new()
@@ -47,7 +47,23 @@ async fn health_readiness_get_returns_200() {
         .await
         .unwrap();
 
-    assert_eq!(200, response.status())
+    assert_eq!(StatusCode::OK, response.status())
+}
+
+#[tokio::test]
+async fn v2_root_returns_not_implemented() {
+    let socket_addr = start_server().await;
+
+    let response = Client::new()
+        .get(
+            format!("http://127.0.0.1:{}/v2/", socket_addr.port())
+                .parse()
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(StatusCode::NOT_IMPLEMENTED, response.status())
 }
 
 async fn start_server() -> SocketAddr {

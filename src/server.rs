@@ -1,8 +1,11 @@
 use std::{future::Future, net::TcpListener};
 
-use axum::{routing::get, Router, Server};
+use axum::{
+    routing::{any, get},
+    Router, Server,
+};
 
-use crate::route::{health_liveness_get, health_readiness_get};
+use crate::route::{health_liveness_get, health_readiness_get, v2_any};
 
 /// # Errors
 ///
@@ -15,7 +18,8 @@ pub async fn run(
 
     let app = Router::new()
         .route("/health/liveness", get(health_liveness_get))
-        .route("/health/readiness", get(health_readiness_get));
+        .route("/health/readiness", get(health_readiness_get))
+        .route("/v2/*path", any(v2_any));
 
     let server = Server::from_tcp(tcp_listener)?
         .serve(app.into_make_service())

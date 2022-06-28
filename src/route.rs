@@ -19,3 +19,13 @@ pub(crate) async fn health_liveness_get() -> StatusCode {
 pub(crate) async fn health_readiness_get() -> StatusCode {
     StatusCode::OK
 }
+
+/// ANY /v2/*
+///
+/// Returns 501 Not Implemented.
+///
+/// This endpoint is used by the OCI distribution specification proxy.
+#[allow(clippy::unused_async)]
+pub(crate) async fn v2_any() -> StatusCode {
+    StatusCode::NOT_IMPLEMENTED
+}
