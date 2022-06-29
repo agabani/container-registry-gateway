@@ -1,5 +1,8 @@
-use container_registry_gateway::{server, shutdown};
-use hyper::{client::Client, StatusCode};
+use container_registry_gateway::{
+    oci::{Response, ResponseError},
+    server, shutdown,
+};
+use hyper::{body::Buf as _, client::Client, StatusCode};
 use std::net::SocketAddr;
 
 #[tokio::test]
@@ -15,7 +18,7 @@ async fn root_returns_not_found() {
         .await
         .unwrap();
 
-    assert_eq!(StatusCode::NOT_FOUND, response.status())
+    assert_eq!(StatusCode::NOT_FOUND, response.status());
 }
 
 #[tokio::test]
@@ -31,7 +34,7 @@ async fn health_liveness_get_returns_ok() {
         .await
         .unwrap();
 
-    assert_eq!(StatusCode::OK, response.status())
+    assert_eq!(StatusCode::OK, response.status());
 }
 
 #[tokio::test]
@@ -47,7 +50,7 @@ async fn health_readiness_get_returns_ok() {
         .await
         .unwrap();
 
-    assert_eq!(StatusCode::OK, response.status())
+    assert_eq!(StatusCode::OK, response.status());
 }
 
 #[tokio::test]
@@ -63,7 +66,20 @@ async fn v2_root_returns_unauthorized() {
         .await
         .unwrap();
 
-    assert_eq!(StatusCode::UNAUTHORIZED, response.status())
+    assert_eq!(StatusCode::UNAUTHORIZED, response.status());
+
+    let body = parse_body(response).await;
+
+    assert_eq!(
+        Response {
+            errors: vec![ResponseError {
+                code: "UNAUTHORIZED".to_string(),
+                message: "authentication required".to_string(),
+                details: None
+            }]
+        },
+        body
+    );
 }
 
 async fn start_server() -> SocketAddr {
@@ -76,4 +92,10 @@ async fn start_server() -> SocketAddr {
     );
 
     socket_addr
+}
+
+async fn parse_body(response: hyper::Response<hyper::Body>) -> Response {
+    let buffer = hyper::body::aggregate(response).await.unwrap();
+
+    serde_json::from_reader(buffer.reader()).unwrap()
 }

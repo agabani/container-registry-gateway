@@ -1,6 +1,18 @@
 use hyper::{client::HttpConnector, Client};
 use hyper_rustls::{HttpsConnector, HttpsConnectorBuilder};
 
+#[derive(Debug, PartialEq, serde::Deserialize)]
+pub struct Response {
+    pub errors: Vec<ResponseError>,
+}
+
+#[derive(Debug, PartialEq, serde::Deserialize)]
+pub struct ResponseError {
+    pub code: String,
+    pub message: String,
+    pub details: Option<()>,
+}
+
 pub(crate) struct Proxy {
     base_address: String,
     client: Client<HttpsConnector<HttpConnector>>,
