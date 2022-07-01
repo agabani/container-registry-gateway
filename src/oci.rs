@@ -10,6 +10,7 @@ pub struct ResponseError {
     pub details: Option<()>,
 }
 
+#[derive(Clone)]
 pub(crate) struct Proxy {
     base_address: String,
 }

@@ -1,6 +1,6 @@
 use axum::{http::status::StatusCode, Extension};
 
-use crate::{oci::Proxy, state::State};
+use crate::state::State;
 
 /// GET /health/liveness
 ///
@@ -32,7 +32,8 @@ pub(crate) async fn v2_any(
     Extension(state): Extension<State>,
     request: axum::http::Request<axum::body::Body>,
 ) -> Result<hyper::Response<hyper::Body>, StatusCode> {
-    Proxy::new("https://registry-1.docker.io")
+    state
+        .oci_proxy
         .send(&state.http_client, request)
         .await
         .map_err(|error| {

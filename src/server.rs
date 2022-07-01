@@ -6,7 +6,7 @@ use axum::{
 };
 
 use crate::{
-    http,
+    http, oci,
     route::{health_liveness_get, health_readiness_get, v2_any},
     state::State,
 };
@@ -22,6 +22,7 @@ pub async fn run(
 
     let state = State {
         http_client: http::client(),
+        oci_proxy: oci::Proxy::new("https://registry-1.docker.io"),
     };
 
     let app = Router::new()
