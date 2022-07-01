@@ -8,6 +8,8 @@ mod route;
 
 pub mod shutdown;
 
+mod state;
+
 /// Error returned by most functions.
 ///
 /// For performance reasons, boxing is avoided in any hot path.

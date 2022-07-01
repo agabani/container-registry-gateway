@@ -1,6 +1,6 @@
-use axum::http::status::StatusCode;
+use axum::{http::status::StatusCode, Extension};
 
-use crate::oci::Proxy;
+use crate::{oci::Proxy, state::State};
 
 /// GET /health/liveness
 ///
@@ -29,6 +29,7 @@ pub(crate) async fn health_readiness_get() -> StatusCode {
 /// This endpoint is used by the OCI distribution specification proxy.
 #[allow(clippy::unused_async)]
 pub(crate) async fn v2_any(
+    Extension(_state): Extension<State>,
     request: axum::http::Request<axum::body::Body>,
 ) -> Result<hyper::Response<hyper::Body>, StatusCode> {
     Proxy::new("https://registry-1.docker.io")
