@@ -25,6 +25,11 @@ pub(crate) struct ProxyResponse {
     response: hyper::Response<hyper::Body>,
 }
 
+#[derive(Clone)]
+pub(crate) struct Regex {
+    pub(crate) name_manifest_reference: regex::Regex,
+}
+
 impl Proxy {
     /// Creates a new `Proxy` instance.
     pub(crate) fn new(base_address: impl Into<String>) -> Proxy {
@@ -114,5 +119,16 @@ impl TryFrom<ProxyResponse> for hyper::Response<hyper::Body> {
         );
 
         response.body(this.response.into_body()).map_err(Into::into)
+    }
+}
+
+impl Default for Regex {
+    fn default() -> Self {
+        Self {
+            name_manifest_reference: regex::Regex::new(
+                r"/v2/(?P<name>.*)/manifests/(?P<reference>.*)",
+            )
+            .unwrap(),
+        }
     }
 }

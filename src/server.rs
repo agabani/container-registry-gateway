@@ -5,11 +5,7 @@ use axum::{
     Extension, Router, Server,
 };
 
-use crate::{
-    http, oci,
-    route::{health_liveness_get, health_readiness_get, v2_any},
-    state::State,
-};
+use crate::{http, oci, route, state};
 
 /// # Errors
 ///
@@ -20,15 +16,16 @@ pub async fn run(
 ) -> crate::Result<()> {
     let socket_addr = tcp_listener.local_addr()?;
 
-    let state = State {
+    let state = state::State {
         http_client: http::client(),
         oci_proxy: oci::Proxy::new("https://registry-1.docker.io"),
+        oci_regex: oci::Regex::default(),
     };
 
     let app = Router::new()
-        .route("/health/liveness", get(health_liveness_get))
-        .route("/health/readiness", get(health_readiness_get))
-        .route("/v2/*path", any(v2_any))
+        .route("/health/liveness", get(route::health_liveness_get))
+        .route("/health/readiness", get(route::health_readiness_get))
+        .route("/v2/*path", any(route::v2_routes))
         .layer(Extension(state));
 
     let server = Server::from_tcp(tcp_listener)?
