@@ -6,6 +6,7 @@ use axum::{
 };
 
 use crate::{
+    http,
     route::{health_liveness_get, health_readiness_get, v2_any},
     state::State,
 };
@@ -19,7 +20,9 @@ pub async fn run(
 ) -> crate::Result<()> {
     let socket_addr = tcp_listener.local_addr()?;
 
-    let state = State {};
+    let state = State {
+        http_client: http::client(),
+    };
 
     let app = Router::new()
         .route("/health/liveness", get(health_liveness_get))

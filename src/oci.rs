@@ -1,6 +1,3 @@
-use hyper::{client::HttpConnector, Client};
-use hyper_rustls::{HttpsConnector, HttpsConnectorBuilder};
-
 #[derive(Debug, PartialEq, serde::Deserialize)]
 pub struct Response {
     pub errors: Vec<ResponseError>,
@@ -15,7 +12,6 @@ pub struct ResponseError {
 
 pub(crate) struct Proxy {
     base_address: String,
-    client: Client<HttpsConnector<HttpConnector>>,
 }
 
 pub(crate) struct ProxyRequest {
@@ -33,19 +29,7 @@ impl Proxy {
     pub(crate) fn new(base_address: impl Into<String>) -> Proxy {
         Proxy {
             base_address: base_address.into(),
-            client: Client::builder().build(
-                HttpsConnectorBuilder::new()
-                    .with_webpki_roots()
-                    .https_or_http()
-                    .enable_http1()
-                    .build(),
-            ),
         }
-    }
-
-    /// Returns a client.
-    pub(crate) fn client(&self) -> &Client<HttpsConnector<HttpConnector>> {
-        &self.client
     }
 
     /// Creates a new `ProxyRequest` instance.
@@ -72,11 +56,12 @@ impl Proxy {
     /// A convenience method for proxying a request to the backend.
     pub(crate) async fn send(
         &self,
+        client: &crate::http::Client,
         request: impl Into<hyper::Request<hyper::Body>>,
     ) -> crate::Result<hyper::Response<hyper::Body>> {
         let proxy_request = self.request(request.into());
 
-        let proxy_response = self.response(self.client().request(proxy_request.try_into()?).await?);
+        let proxy_response = self.response(client.request(proxy_request.try_into()?).await?);
 
         proxy_response.try_into()
     }

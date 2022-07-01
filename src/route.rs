@@ -29,11 +29,11 @@ pub(crate) async fn health_readiness_get() -> StatusCode {
 /// This endpoint is used by the OCI distribution specification proxy.
 #[allow(clippy::unused_async)]
 pub(crate) async fn v2_any(
-    Extension(_state): Extension<State>,
+    Extension(state): Extension<State>,
     request: axum::http::Request<axum::body::Body>,
 ) -> Result<hyper::Response<hyper::Body>, StatusCode> {
     Proxy::new("https://registry-1.docker.io")
-        .send(request)
+        .send(&state.http_client, request)
         .await
         .map_err(|error| {
             tracing::error!(?error);
