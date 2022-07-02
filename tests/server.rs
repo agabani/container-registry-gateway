@@ -1,4 +1,5 @@
 use container_registry_gateway::{
+    configuration,
     oci::{Response, ResponseError},
     server, shutdown,
 };
@@ -85,11 +86,18 @@ async fn v2_root_returns_unauthorized() {
 async fn start_server() -> SocketAddr {
     let tcp_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
 
+    let configuration = configuration::load(&[]).unwrap();
+
     let socket_addr = tcp_listener.local_addr().unwrap();
 
-    tokio::spawn(
-        async move { server::run(tcp_listener.into_std().unwrap(), shutdown::recv()).await },
-    );
+    tokio::spawn(async move {
+        server::run(
+            tcp_listener.into_std().unwrap(),
+            shutdown::recv(),
+            configuration,
+        )
+        .await
+    });
 
     socket_addr
 }

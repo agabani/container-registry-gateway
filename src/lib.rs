@@ -1,5 +1,7 @@
 #![warn(clippy::pedantic)]
 
+pub mod configuration;
+
 mod http;
 
 pub mod oci;

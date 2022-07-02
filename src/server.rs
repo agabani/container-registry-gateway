@@ -5,7 +5,7 @@ use axum::{
     Extension, Router, Server,
 };
 
-use crate::{http, oci, route, snyk, state};
+use crate::{configuration, http, oci, route, snyk, state};
 
 /// # Errors
 ///
@@ -13,14 +13,20 @@ use crate::{http, oci, route, snyk, state};
 pub async fn run(
     tcp_listener: TcpListener,
     shutdown_signal: impl Future<Output = ()>,
+    configuration: configuration::Configuration,
 ) -> crate::Result<()> {
     let socket_addr = tcp_listener.local_addr()?;
 
     let state = state::State {
         http_client: http::client(),
-        oci_proxy: oci::Proxy::new("https://registry-1.docker.io"),
+        oci_proxy: oci::Proxy::new(configuration.oci.base_address),
         oci_regex: oci::Regex::default(),
-        snyk_api: snyk::Api::new("https://snyk.io", "", "", ""),
+        snyk_api: snyk::Api::new(
+            configuration.snyk.base_address,
+            configuration.snyk.api_key,
+            configuration.snyk.organization_id,
+            configuration.snyk.integration_id,
+        ),
     };
 
     let app = Router::new()

@@ -1,13 +1,19 @@
-use container_registry_gateway::{server, shutdown};
+use container_registry_gateway::{configuration, server, shutdown};
 use tokio::net::TcpListener;
 
 #[tokio::main]
 async fn main() -> container_registry_gateway::Result<()> {
     set_up_logging()?;
 
-    let tcp_listener = TcpListener::bind("0.0.0.0:8080").await?;
+    let configuration = configuration::load(&[])?;
 
-    server::run(tcp_listener.into_std()?, shutdown::recv()).await?;
+    let tcp_listener = TcpListener::bind(format!(
+        "{}:{}",
+        configuration.http_server.host, configuration.http_server.port
+    ))
+    .await?;
+
+    server::run(tcp_listener.into_std()?, shutdown::recv(), configuration).await?;
 
     Ok(())
 }
