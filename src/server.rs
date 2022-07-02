@@ -5,7 +5,7 @@ use axum::{
     Extension, Router, Server,
 };
 
-use crate::{http, oci, route, state};
+use crate::{http, oci, route, snyk, state};
 
 /// # Errors
 ///
@@ -20,6 +20,7 @@ pub async fn run(
         http_client: http::client(),
         oci_proxy: oci::Proxy::new("https://registry-1.docker.io"),
         oci_regex: oci::Regex::default(),
+        snyk_api: snyk::Api::new("https://snyk.io", "", "", ""),
     };
 
     let app = Router::new()

@@ -4,6 +4,7 @@
     "rustls",
     "SIGINT",
     "SIGTERM",
+    "snyk",
     "webpki"
   ]
 }

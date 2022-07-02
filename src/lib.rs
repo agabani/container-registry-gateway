@@ -10,6 +10,8 @@ mod route;
 
 pub mod shutdown;
 
+mod snyk;
+
 mod state;
 
 /// Error returned by most functions.

@@ -29,7 +29,7 @@ pub(crate) async fn health_readiness_get() -> StatusCode {
 /// This router has been implemented manually as a workaround for the `axum::routing::Router` not supporting
 /// both captures and wildcards at the same time.
 pub(crate) async fn v2_routes(
-    Extension(state): Extension<State>,
+    state: Extension<State>,
     request: axum::http::Request<axum::body::Body>,
 ) -> Result<hyper::Response<hyper::Body>, StatusCode> {
     let uri = request.uri().to_string();
@@ -37,9 +37,9 @@ pub(crate) async fn v2_routes(
     let name_manifest_reference = state.oci_regex.name_manifest_reference.captures(&uri);
 
     match (request.method(), name_manifest_reference) {
-        (&axum::http::Method::GET | &axum::http::Method::HEAD, Some(captures)) => {
+        (&(axum::http::Method::GET | axum::http::Method::HEAD), Some(captures)) => {
             v2_name_manifest_reference_get_head(
-                Extension(state),
+                &state,
                 Path((
                     captures["name"].to_string(),
                     captures["reference"].to_string(),
@@ -50,7 +50,7 @@ pub(crate) async fn v2_routes(
         }
         (&axum::http::Method::PUT, Some(captures)) => {
             v2_name_manifest_reference_put(
-                Extension(state),
+                &state,
                 Path((
                     captures["name"].to_string(),
                     captures["reference"].to_string(),
@@ -59,7 +59,7 @@ pub(crate) async fn v2_routes(
             )
             .await
         }
-        _ => v2_proxy(Extension(state), request).await,
+        _ => v2_proxy(&state, request).await,
     }
 }
 
@@ -68,11 +68,11 @@ pub(crate) async fn v2_routes(
 /// This endpoint is used by the OCI distribution specification proxy.
 #[tracing::instrument(skip(state, request))]
 pub(crate) async fn v2_name_manifest_reference_get_head(
-    Extension(state): Extension<State>,
+    state: &Extension<State>,
     Path((name, reference)): Path<(String, String)>,
     request: axum::http::Request<axum::body::Body>,
 ) -> Result<hyper::Response<hyper::Body>, StatusCode> {
-    v2_proxy(Extension(state), request).await
+    v2_proxy(state, request).await
 }
 
 /// PUT /v2/:name/manifests/:reference
@@ -80,18 +80,32 @@ pub(crate) async fn v2_name_manifest_reference_get_head(
 /// This endpoint is used by the OCI distribution specification proxy.
 #[tracing::instrument(skip(state, request))]
 pub(crate) async fn v2_name_manifest_reference_put(
-    Extension(state): Extension<State>,
+    state: &Extension<State>,
     Path((name, reference)): Path<(String, String)>,
     request: axum::http::Request<axum::body::Body>,
 ) -> Result<hyper::Response<hyper::Body>, StatusCode> {
-    v2_proxy(Extension(state), request).await
+    let response = v2_proxy(state, request).await;
+
+    state
+        .snyk_api
+        .send_organization_integration_import_post(
+            &state.http_client,
+            format!("{}:{}", name, reference),
+        )
+        .await
+        .map_err(|error| {
+            tracing::error!(?error);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
+    response
 }
 
 /// Fallback route for /v2/* if no routes match the incoming request.
 ///
 /// This endpoint is used by the OCI distribution specification proxy.
 pub(crate) async fn v2_proxy(
-    Extension(state): Extension<State>,
+    state: &Extension<State>,
     request: axum::http::Request<axum::body::Body>,
 ) -> Result<hyper::Response<hyper::Body>, StatusCode> {
     state
