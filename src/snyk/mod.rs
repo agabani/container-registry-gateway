@@ -1,4 +1,5 @@
 mod organization_integration_import_post;
+mod organization_projects_post;
 
 #[derive(Clone)]
 pub(crate) struct Api {
@@ -56,5 +57,29 @@ impl Api {
         };
 
         client.request(request.try_into()?).await?.try_into()
+    }
+
+    /// Sends a organization projects post request.
+    ///
+    /// A convenience method for sending a request to the backend.
+    pub(crate) async fn send_organization_projects_post(
+        &self,
+        client: &crate::http::Client,
+        name: impl Into<String>,
+    ) -> crate::Result<organization_projects_post::Response> {
+        use organization_projects_post::{Request, RequestBody, RequestBodyFilters, Response};
+
+        let request = Request {
+            base_address: self.base_address.clone(),
+            api_key: self.api_key.clone(),
+            organization_id: self.organization_id.clone(),
+            body: RequestBody {
+                filters: RequestBodyFilters { name: name.into() },
+            },
+        };
+
+        let response = client.request(request.try_into()?).await?;
+
+        Response::try_from_response(response).await
     }
 }

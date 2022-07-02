@@ -1,9 +1,9 @@
-#[derive(Debug, PartialEq, serde::Deserialize)]
+#[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct Response {
     pub errors: Vec<ResponseError>,
 }
 
-#[derive(Debug, PartialEq, serde::Deserialize)]
+#[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct ResponseError {
     pub code: String,
     pub message: String,
