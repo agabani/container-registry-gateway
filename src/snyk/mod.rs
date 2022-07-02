@@ -1,5 +1,5 @@
 mod organization_integration_import_post;
-mod organization_projects_post;
+pub(crate) mod organization_projects_post;
 
 #[derive(Clone)]
 pub(crate) struct Api {

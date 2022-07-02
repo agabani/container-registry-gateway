@@ -1,6 +1,6 @@
 use axum::{extract::Path, http::status::StatusCode, Extension};
 
-use crate::{oci, state::State};
+use crate::{logic, oci, state::State};
 
 /// GET /health/liveness
 ///
@@ -81,106 +81,11 @@ pub(crate) async fn v2_name_manifest_reference_get_head(
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
-    if let Some(project) = response.body.projects.first() {
-        let criticality = &project.attributes.criticality;
-        let issue_count = &project.issue_counts_by_severity;
-        let project_criticality = if criticality.contains(&"critical".to_string()) {
-            4
-        } else if criticality.contains(&"high".to_string()) {
-            3
-        } else if criticality.contains(&"medium".to_string()) {
-            2
-        } else if criticality.contains(&"low".to_string()) {
-            1
-        } else {
-            0
-        };
-        if issue_count.critical > 0 && project_criticality < 4 {
-            let body = serde_json::to_vec(&oci::Response {
-                errors: vec![oci::ResponseError {
-                    code: "DENIED".to_string(),
-                    message: "Image exceeded vulnerability threshold critical".to_string(),
-                    details: None,
-                }],
-            })
-            .map_err(|error| {
-                tracing::error!(?error);
-                StatusCode::INTERNAL_SERVER_ERROR
-            })?;
-
-            return hyper::Response::builder()
-                .status(StatusCode::FORBIDDEN)
-                .body(hyper::Body::from(body))
-                .map_err(|error| {
-                    tracing::error!(?error);
-                    StatusCode::INTERNAL_SERVER_ERROR
-                });
-        } else if issue_count.high > 0 && project_criticality < 3 {
-            let body = serde_json::to_vec(&oci::Response {
-                errors: vec![oci::ResponseError {
-                    code: "DENIED".to_string(),
-                    message: "Image exceeded vulnerability threshold high".to_string(),
-                    details: None,
-                }],
-            })
-            .map_err(|error| {
-                tracing::error!(?error);
-                StatusCode::INTERNAL_SERVER_ERROR
-            })?;
-
-            return hyper::Response::builder()
-                .status(StatusCode::FORBIDDEN)
-                .body(hyper::Body::from(body))
-                .map_err(|error| {
-                    tracing::error!(?error);
-                    StatusCode::INTERNAL_SERVER_ERROR
-                });
-        } else if issue_count.medium > 0 && project_criticality < 2 {
-            let body = serde_json::to_vec(&oci::Response {
-                errors: vec![oci::ResponseError {
-                    code: "DENIED".to_string(),
-                    message: "Image exceeded vulnerability threshold medium".to_string(),
-                    details: None,
-                }],
-            })
-            .map_err(|error| {
-                tracing::error!(?error);
-                StatusCode::INTERNAL_SERVER_ERROR
-            })?;
-
-            return hyper::Response::builder()
-                .status(StatusCode::FORBIDDEN)
-                .body(hyper::Body::from(body))
-                .map_err(|error| {
-                    tracing::error!(?error);
-                    StatusCode::INTERNAL_SERVER_ERROR
-                });
-        } else if issue_count.low > 0 && project_criticality < 1 {
-            let body = serde_json::to_vec(&oci::Response {
-                errors: vec![oci::ResponseError {
-                    code: "DENIED".to_string(),
-                    message: "Image exceeded vulnerability threshold low".to_string(),
-                    details: None,
-                }],
-            })
-            .map_err(|error| {
-                tracing::error!(?error);
-                StatusCode::INTERNAL_SERVER_ERROR
-            })?;
-
-            return hyper::Response::builder()
-                .status(StatusCode::FORBIDDEN)
-                .body(hyper::Body::from(body))
-                .map_err(|error| {
-                    tracing::error!(?error);
-                    StatusCode::INTERNAL_SERVER_ERROR
-                });
-        }
-    } else {
+    if let Err(error) = logic::admitted(&response) {
         let body = serde_json::to_vec(&oci::Response {
             errors: vec![oci::ResponseError {
                 code: "DENIED".to_string(),
-                message: "Image not monitored for vulnerabilities".to_string(),
+                message: error.to_string(),
                 details: None,
             }],
         })

@@ -4,6 +4,8 @@ pub mod configuration;
 
 mod http;
 
+mod logic;
+
 pub mod oci;
 
 pub mod server;
