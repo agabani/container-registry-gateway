@@ -86,7 +86,14 @@ async fn v2_root_returns_unauthorized() {
 async fn start_server() -> SocketAddr {
     let tcp_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
 
-    let configuration = configuration::load(&[]).unwrap();
+    let configuration = configuration::load(&[
+        ("oci.base_address", "https://registry-1.docker.io"),
+        ("snyk.api_key", ""),
+        ("snyk.base_address", ""),
+        ("snyk.integration_id", ""),
+        ("snyk.organization_id", ""),
+    ])
+    .unwrap();
 
     let socket_addr = tcp_listener.local_addr().unwrap();
 
