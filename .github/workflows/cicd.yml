@@ -27,7 +27,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Cargo Cache
         id: cargo-cache
         uses: actions/cache@v2
@@ -59,7 +59,7 @@ jobs:
       - cargo-build
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Cargo Cache
         id: cargo-cache
         uses: actions/cache@v2
@@ -92,7 +92,7 @@ jobs:
       - cargo-build
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Cargo Cache
         id: cargo-cache
         uses: actions/cache@v2
@@ -143,7 +143,7 @@ jobs:
       - cargo-build
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Cargo Cache
         id: cargo-cache
         uses: actions/cache@v2
@@ -178,7 +178,7 @@ jobs:
       - cargo-build
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Cargo Cache
         id: cargo-cache
         uses: actions/cache@v2
@@ -210,7 +210,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
@@ -246,7 +246,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
