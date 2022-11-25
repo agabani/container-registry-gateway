@@ -10,7 +10,7 @@ name = "container-registry-gateway-server"
 path = "src/bin/server.rs"
 
 [dependencies]
-axum = "0.5.17"
+axum = "0.6.0"
 config = "0.13.2"
 hyper = { version = "0.14.23", features = ["full"] }
 hyper-rustls = { version = "0.23.1", features = ["webpki-roots"] }
