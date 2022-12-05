@@ -11,7 +11,7 @@ path = "src/bin/server.rs"
 
 [dependencies]
 axum = "0.5.17"
-config = "0.13.2"
+config = "0.13.3"
 hyper = { version = "0.14.23", features = ["full"] }
 hyper-rustls = { version = "0.23.1", features = ["webpki-roots"] }
 regex = "1.7.0"
