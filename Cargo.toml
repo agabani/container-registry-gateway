@@ -15,7 +15,7 @@ config = "0.13.3"
 hyper = { version = "0.14.23", features = ["full"] }
 hyper-rustls = { version = "0.23.1", features = ["webpki-roots"] }
 regex = "1.7.0"
-serde = { version = "1.0.148", features = ["derive"] }
+serde = { version = "1.0.149", features = ["derive"] }
 serde_json = "1.0.89"
 tokio = { version = "1.22.0", features = ["full"] }
 tower = "0.4.13"
